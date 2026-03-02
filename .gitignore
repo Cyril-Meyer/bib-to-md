@@ -208,3 +208,5 @@ __marimo__/
 
 # Ignore input bib
 *.bib
+# Ignore default output
+output/
