@@ -93,10 +93,19 @@ with open(os.path.join(args.output, f'{args.index}'), 'w', encoding='utf8') as m
                     f.write(f' [{doi}](https://doi.org/{doi}).')
                 f.write('  ')
 
-        # Create file _links if not existing.
-        open(os.path.join(args.output, f'{key}_links.md'), 'a').close()
+        # Create file _links
+        path = os.path.join(args.output, f'{key}_links.md')
+
+        if os.path.isfile(path) and not args.force_overwrite:
+            print(f'[IGNORED] {path}')
+        else:
+            with open(path, 'w', encoding='utf8') as f:
+                if doi:
+                    f.write(f' [🔗](https://doi.org/{doi})')
+                else:
+                    f.write('🚧')
 
         # Add files to
-        mainfile.write('* {' + f'% include_relative {key}.md %' + '}')
-        mainfile.write('{' + f'% include_relative {key}_links.md %' + '}')
+        mainfile.write('* {' + f'% include {key}.md %' + '}\n')
+        mainfile.write('{' + f'% include {key}_links.md %' + '}')
         mainfile.write('\n')
