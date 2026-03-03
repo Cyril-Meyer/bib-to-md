@@ -25,18 +25,39 @@ if not os.path.exists(args.output):
     os.makedirs(args.output)
 
 # Sorting entries
+ORDER = {
+    'article': 0,
+    'inproceedings': 0,
+    'phdthesis': 4,
+    'misc': 5
+}
+# Names for entries sections
+SECTION_NAMES = {
+    0: 'International Articles & Communications in Journals, Conferences and Workshops',
+    4: 'Dissertations',
+    5: 'Other Communications & Datasets'
+}
+
 def type_rank(t):
-    if t in ('article', 'inproceedings'):
-        return 0
-    if t == 'phdthesis':
-        return 4
-    return 5
+    return ORDER.get(t, 6)
 entries = sorted(db.entries, key=lambda e: (type_rank(e['ENTRYTYPE']), -int(e.get('year', 0))))
+
+current_section = None
 
 with open(os.path.join(args.output, f'{args.index}'), 'w', encoding='utf8') as mainfile:
     for entry in entries:
-        # Reading entries
+        # Create new sections if
         entry_type = entry['ENTRYTYPE']
+        rank = type_rank(entry_type)
+        if rank != current_section:
+            if current_section is not None:
+                mainfile.write('\n')
+
+            current_section = rank
+            mainfile.write(f'## {SECTION_NAMES[rank]}\n\n')
+
+        # Reading entries
+        # entry_type = entry['ENTRYTYPE']
         key = entry['ID']
         authors = entry['author']
         title = entry['title']
